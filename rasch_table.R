@@ -5,6 +5,9 @@
 # Improvements over the original: faster table creation, easy plot renaming via "title" argument,
 #                                 does not name plots by item order but by colname
 
+# source("https://raw.githubusercontent.com/PetrPalisek/rasch_table/main/rasch_table.R")
+
+
 rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = TRUE, rmsea_cut = .1,
                         title = "Empirical plot for item") {
   
@@ -28,11 +31,15 @@ rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = T
   
   # If RMSEA requested, estimate X2*_df and append it to the table
   if(append.rmsea == TRUE) {
-    print("Computing RMSEA for X2*_df")
+    
+    print("Bootstrapping for mirt::itemfit method X2*_df")
+    
     rmsea.table <-  mirt::itemfit(model, method = "ML", fit_stats = "X2*_df", na.rm = T, boot_dfapprox = boot)[,4:5] 
     colnames(rmsea.table) <- c("RMSEA", "p")
+    
     rmsea.table$p.bonferroni <-  rmsea.table$p*nrow(rmsea.table)
     rmsea.table$p.bonferroni <- ifelse( rmsea.table$p.bonferroni > 1, 1,  rmsea.table$p.bonferroni)
+    
     table <- cbind(table, round(rmsea.table,2))
     
   } 
