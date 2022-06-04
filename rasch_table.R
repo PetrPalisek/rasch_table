@@ -33,14 +33,19 @@ rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = T
     if(print.plots == TRUE) {
     
     print("Printing plots for misfitting items. You may specify RMSEA cut-off via the rmsea_cut argument.")
-    selected_items <- as.numeric(rownames(rmsea.table[rmsea.table$RMSEA > rmsea_cut,]))
-    
-    for (item in selected_items) {
+      
+    table$number <- as.numeric(rownames( table))
+    items_to_plot <- table[table$RMSEA > rmsea_cut,]
+
+    for (item in items_to_plot$number) {
       p <- mirt::itemfit(model, empirical.plot = item, xlim = c(-3,3), empirical.CI = .90, which.items = item)
+      p[["main"]] <- paste0("Empirical plot for item ", table[item, "item"])
       print(p)
     }
     
   } 
   
-  return(table)
+  return(table[1:10])
 } 
+
+
