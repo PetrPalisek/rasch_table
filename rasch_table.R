@@ -1,4 +1,12 @@
-rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = TRUE, rmsea_cut = .1 ) {
+### A mirt helper function that quickly creates a pastable table with:
+#                    item difficulties, SE, infit/outfit, RMSEA, p and p with Bonferroni correction
+#                    optionally prints empirical vs. expected item plots titled with item names in your data
+
+# Improvements over the original: faster table creation, easy plot renaming via "title" argument,
+#                                 does not name plots by item order but by colname
+
+rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = TRUE, rmsea_cut = .1,
+                        title = "Empirical plot for item") {
   
   require(mirt)
   
@@ -39,7 +47,7 @@ rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = T
 
     for (item in items_to_plot$number) {
       p <- mirt::itemfit(model, empirical.plot = item, xlim = c(-3,3), empirical.CI = .90, which.items = item)
-      p[["main"]] <- paste0("Empirical plot for item ", table[item, "item"])
+      p[["main"]] <- paste0(title, " ", table[item, "item"])
       print(p)
     }
     
