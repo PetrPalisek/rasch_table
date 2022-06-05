@@ -8,8 +8,8 @@
 # source("https://raw.githubusercontent.com/PetrPalisek/rasch_table/main/rasch_table.R")
 
 
-rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = TRUE, rmsea_cut = .1,
-                        title = "Empirical plot for item") {
+rasch_table <- function(model, append.rmsea = FALSE, boot = 1000, print.plots = FALSE, rmsea_cut = .1,
+                        title = "Empirical plot for item", save = FALSE) {
   
   require(mirt)
   
@@ -45,9 +45,9 @@ rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = T
   } 
   
   # If plots requested, print items with RMSEA over the specified cut-off
-    if(print.plots == TRUE) {
+    if(print.plots == TRUE & append.rmsea == TRUE) {
     
-    print("Printing plots for misfitting items. You may specify RMSEA cut-off via the rmsea_cut argument.")
+    print("Printing misfit plots for misfitting items. You may specify RMSEA cut-off via the rmsea_cut argument.")
       
     table$number <- as.numeric(rownames( table))
     items_to_plot <- table[table$RMSEA > rmsea_cut,]
@@ -55,12 +55,41 @@ rasch_table <- function(model, append.rmsea = TRUE, boot = 1000, print.plots = T
     for (item in items_to_plot$number) {
       p <- mirt::itemfit(model, empirical.plot = item, xlim = c(-3,3), empirical.CI = .90, which.items = item)
       p[["main"]] <- paste0(title, " ", table[item, "item"])
-      print(p)
-    }
-    
-  } 
+      print(p) 
+      
+      if(save == TRUE) {
+        
+        png(paste0("misfit_plot", table[item, "item"], ".png"), width = 10, height = 7, units = "in", res = 300)
+        print(p)
+        dev.off()
+        
+        
+      } else next }
+    } else if (print.plots == TRUE & append.rmsea == FALSE) {
+      
+      print("Printing misfit plots for all items.")
+      
+      table$number <- as.numeric(rownames(table))
+      items_to_plot <- table
+      
+      for (item in items_to_plot$number) {
+        p <- mirt::itemfit(model, empirical.plot = item, xlim = c(-3,3), empirical.CI = .90, which.items = item)
+        p[["main"]] <- paste0(title, " ", table[item, "item"])
+        print(p)
+        
+        if(save == TRUE) {
+          
+          png(paste0("misfit_plot", table[item, "item"], ".png"), width = 10, height = 7, units = "in", res = 300)
+          print(p)
+          dev.off()
+          
+          
+        } else next
+    } 
   
-  return(table[1:10])
-} 
+
+    }  
+  return(table[,1:ncol(table)-1])
+}
 
 
